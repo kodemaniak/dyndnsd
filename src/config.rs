@@ -8,8 +8,12 @@ pub struct CliConfig {
     pub domain: String,
     #[envconfig(from = "DYNDNSD_SUBDOMAIN")]
     pub subdomain: String,
-    #[envconfig(from = "DYNDNSD_WAN_INTERFACE")]
-    pub interface: String,
     #[envconfig(from = "DYNDNSD_POLL_INTERVAL")]
     pub interval: u32,
+    #[envconfig(from = "DYNDNSD_UBUS_URL")]
+    pub ubus_url: String,
+    #[envconfig(from = "DYNDNSD_UBUS_USER")]
+    pub ubus_user: String,
+    #[envconfig(from = "DYNDNSD_UBUS_SECRET")]
+    pub ubus_secret: String,
 }

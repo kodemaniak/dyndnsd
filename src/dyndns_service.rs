@@ -1,6 +1,6 @@
 use crate::{
     dns_service::{DnsService, DnsServiceError},
-    netlink_public_ip_service::{PublicIpService, PublicIpServiceError},
+    public_ip_service::{PublicIpService, PublicIpServiceError},
 };
 
 pub struct DynDnsService {
@@ -30,7 +30,7 @@ impl DynDnsService {
             .dns_service
             .resolve_ip(&self.subdomain, &self.domain)
             .await?;
-        let current_local_ip = self.public_ip_service.get_ip()?;
+        let current_local_ip = self.public_ip_service.get_ip().await?;
 
         if current_dns_ip.is_none() || current_dns_ip.unwrap() != current_local_ip {
             self.dns_service
@@ -65,7 +65,7 @@ mod tests {
 
     use super::*;
     use crate::dns_service::*;
-    use crate::netlink_public_ip_service::*;
+    use crate::public_ip_service::*;
 
     #[tokio::test]
     async fn do_nothing_when_dns_matches_ip() {

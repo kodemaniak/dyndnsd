@@ -1,20 +1,21 @@
 use clokwerk::{Scheduler, TimeUnits};
 use dyndnsd::{
     config::CliConfig, dns_service::HetznerDnsService, dyndns_service::DynDnsService,
-    netlink_public_ip_service::NetlinkPublicIpService,
+    ubus_jsonrpc_public_ip_service::UbusJsonRpcPublicIpService,
 };
 use envconfig::Envconfig;
 use std::time::Duration;
 use tokio::sync::mpsc::channel;
 
-#[tokio::main]
+#[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), ()> {
     let config = CliConfig::init_from_env().unwrap();
 
     let mut scheduler = Scheduler::new();
 
     let dns_service = HetznerDnsService::new(&config.api_token);
-    let netlink = NetlinkPublicIpService::new(&config.interface);
+    let netlink =
+        UbusJsonRpcPublicIpService::new(&config.ubus_url, &config.ubus_user, &config.ubus_secret);
 
     let dyndns = DynDnsService::new(
         &config.domain,
@@ -29,13 +30,11 @@ async fn main() -> Result<(), ()> {
     scheduler.every(config.interval.seconds()).run(move || {
         loop_tx.clone().blocking_send(()).unwrap();
     });
-
     let _thread_handle = scheduler.watch_thread(Duration::from_millis(100));
 
     tx.clone().send(()).await.unwrap();
 
     while let Some(_) = rx.recv().await {
-        println!("POLL");
         dyndns.update_dns_if_required().await.map_err(|_| ())?;
     }
 

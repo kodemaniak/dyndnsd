@@ -73,9 +73,7 @@ impl HetznerDnsClient {
             .get(format!("{}/zones?name={}", self.api_url, domain))
             .header("Auth-API-Token", &self.api_token)
             .build();
-        dbg!(&request);
         let response = self.client.send(request).await;
-        dbg!(&response);
         let mut response = response?;
 
         match response.status() {
@@ -105,14 +103,11 @@ impl HetznerDnsClient {
             .get(format!("{}/records?zone_id={}", self.api_url, zone_id))
             .header("Auth-API-Token", &self.api_token)
             .build();
-        dbg!(&request);
         let mut response = self.client.send(request).await?;
-        dbg!(&response);
 
         match response.status() {
             StatusCode::Ok => {
                 let response: GetRecordsResponse = response.body_json().await?;
-                dbg!(&response);
                 if let Some(record) = response.records.into_iter().find(|r| r.name == subdomain) {
                     return Ok(Some(record));
                 }
@@ -144,9 +139,7 @@ impl HetznerDnsClient {
             .body(Body::from_json(&request_body)?)
             .header("Auth-API-Token", &self.api_token)
             .build();
-        dbg!(&request);
         let response = self.client.send(request).await;
-        dbg!(&response);
         let mut response = response?;
 
         match response.status() {
