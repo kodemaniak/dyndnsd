@@ -13,7 +13,7 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
-      - run: rustup component add clippy
+          components: rustfmt, clippy
       - uses: actions-rs/cargo@v1
         name: fmt check
         with:
@@ -32,3 +32,7 @@ jobs:
         name: test
         with:
           command: test
+      - name: Security audit
+        uses: actions-rs/audit-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
