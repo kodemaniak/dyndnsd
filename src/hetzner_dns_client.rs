@@ -86,10 +86,10 @@ impl HetznerDnsClient {
 
                 let maybe_zone = response.zones.into_iter().next();
 
-                return Ok(maybe_zone);
+                Ok(maybe_zone)
             }
-            StatusCode::Unauthorized => return Err(HetznerDnsClientError::InvalidApiToken),
-            _ => return Err(HetznerDnsClientError::UnknownError),
+            StatusCode::Unauthorized => Err(HetznerDnsClientError::InvalidApiToken),
+            _ => Err(HetznerDnsClientError::UnknownError),
         }
     }
 
@@ -146,10 +146,10 @@ impl HetznerDnsClient {
             StatusCode::Ok => {
                 let response: UpdateRecordResponse = response.body_json().await?;
 
-                return Ok(response.record);
+                Ok(response.record)
             }
-            StatusCode::Unauthorized => return Err(HetznerDnsClientError::InvalidApiToken),
-            _ => return Err(HetznerDnsClientError::UnknownError),
+            StatusCode::Unauthorized => Err(HetznerDnsClientError::InvalidApiToken),
+            _ => Err(HetznerDnsClientError::UnknownError),
         }
     }
 }

@@ -76,7 +76,7 @@ mod tests {
             .expect_resolve_ip()
             .with(predicate::eq("test"), predicate::eq("example.com"))
             .times(1)
-            .returning(move |_, _| Ok(Some(local_ip.clone())));
+            .returning(move |_, _| Ok(Some(local_ip)));
         dns_svc_mock
             .expect_update_dns()
             .with(
@@ -171,7 +171,7 @@ mod tests {
             .expect_resolve_ip()
             .with(predicate::eq("test"), predicate::eq("example.com"))
             .times(1)
-            .returning(move |_, _| Ok(Some(local_ip.clone())));
+            .returning(move |_, _| Ok(Some(local_ip)));
         dns_svc_mock
             .expect_update_dns()
             .with(

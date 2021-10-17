@@ -55,9 +55,9 @@ impl UbusJsonRpcPublicIpService {
                 let token = response_body["result"][1]["ubus_rpc_session"]
                     .as_str()
                     .ok_or(PublicIpServiceError::UnknownError)?;
-                return Ok(Token(String::from(token)));
+                Ok(Token(String::from(token)))
             }
-            _ => return Err(PublicIpServiceError::UnknownError),
+            _ => Err(PublicIpServiceError::UnknownError),
         }
     }
 }

@@ -34,9 +34,9 @@ async fn main() -> Result<(), ()> {
 
     tx.clone().send(()).await.unwrap();
 
-    while let Some(_) = rx.recv().await {
+    while rx.recv().await.is_some() {
         dyndns.update_dns_if_required().await.map_err(|_| ())?;
     }
 
-    return Err(());
+    Err(())
 }
