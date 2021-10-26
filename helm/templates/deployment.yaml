@@ -33,6 +33,43 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            # Define the environment variable
+            - name: DYNDNSD_POLL_INTERVAL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.environmentVars }}
+                  key: DYNDNSD_POLL_INTERVAL
+            - name: DYNDNSD_POLL_INTERVAL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.environmentVars }}
+                  key: DYNDNSD_SUBDOMAIN
+            - name: DYNDNSD_POLL_INTERVAL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.environmentVars }}
+                  key: DYNDNSD_UBUS_URL
+            - name: DYNDNSD_POLL_INTERVAL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.environmentVars }}
+                  key: DYNDNSD_UBUS_USER
+            - name: DYNDNSD_POLL_INTERVAL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.environmentVars }}
+                  key: DYNDNSD_DOMAIN
+            - name: DYNDNSD_HETZNER_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secretVars }}
+                  key: DYNDNSD_HETZNER_API_TOKEN
+            - name: DYNDNSD_UBUS_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secretVars }}
+                  key: DYNDNSD_UBUS_SECRET
           ports:
             - name: http
               containerPort: 80
