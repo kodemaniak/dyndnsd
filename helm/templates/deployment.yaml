@@ -40,22 +40,22 @@ spec:
                 configMapKeyRef:
                   name: {{ .Values.environmentVars }}
                   key: DYNDNSD_POLL_INTERVAL
-            - name: DYNDNSD_POLL_INTERVAL
+            - name: DYNDNSD_SUBDOMAIN
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Values.environmentVars }}
                   key: DYNDNSD_SUBDOMAIN
-            - name: DYNDNSD_POLL_INTERVAL
+            - name: DYNDNSD_UBUS_URL
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Values.environmentVars }}
                   key: DYNDNSD_UBUS_URL
-            - name: DYNDNSD_POLL_INTERVAL
+            - name: DYNDNSD_UBUS_USER
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Values.environmentVars }}
                   key: DYNDNSD_UBUS_USER
-            - name: DYNDNSD_POLL_INTERVAL
+            - name: DYNDNSD_DOMAIN
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Values.environmentVars }}
