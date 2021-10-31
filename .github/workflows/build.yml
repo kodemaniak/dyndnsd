@@ -53,11 +53,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
-        with:
-          images: ghcr.io/kodemaniak/dyndnsd
+      - name: Download dasel
+        run: curl -s https://github.com/TomWright/dasel/releases/download/v1.21.2/dasel_linux_amd64 -O dasel && chmod +x dasel && ./dasel --version
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
