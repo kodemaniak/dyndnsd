@@ -78,4 +78,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: kodemaniak/dyndnsd:${{ env.RELEASE_VERSION }}
+          tags: ghcr.io/kodemaniak/dyndnsd:${{ env.RELEASE_VERSION }}
