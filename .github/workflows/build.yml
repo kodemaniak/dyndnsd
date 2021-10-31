@@ -54,12 +54,28 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download dasel
-        run: curl -sL https://github.com/TomWright/dasel/releases/download/v1.21.2/dasel_linux_amd64 --output dasel && chmod +x dasel && ./dasel --version
+        run: |
+          curl -sL https://github.com/TomWright/dasel/releases/download/v1.21.2/dasel_linux_amd64 --output dasel && \
+          chmod +x dasel && \
+          ./dasel --version
+
+      - name: set version env
+        run: |
+          export CARGO_VERSION=`./dasel select -f Cargo.toml -s '.package.version'`
+          echo "CARGO_VERSION=$CARGO_VERSION" >> $GITHUB_ENV
+
+      - name: set commit short hash env
+        run: |
+          export GIT_SHORT_COMMIT_ID=`git rev-parse --short HEAD`
+          echo "GIT_SHORT_COMMIT_ID=$GIT_SHORT_COMMIT_ID" >> $GITHUB_ENV
+
+      - name: set version env
+        run: |
+          echo "RELEASE_VERSION=$CARGO_VERSION+$GIT_SHORT_COMMIT_ID" >> $GITHUB_ENV
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ RELEASE_VERSION }}
