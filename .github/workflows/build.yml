@@ -71,7 +71,8 @@ jobs:
 
       - name: set commit timestamp env
         run: |
-          export GIT_COMMIT_TIMESTAMP=`git show --format=%ct HEAD -s`
+          export GIT_COMMIT_UNIX_TIMESTAMP=`git show --format=%ct HEAD -s`
+          export GIT_COMMIT_TIMESTAMP=`date -u -d @$GIT_COMMIT_UNIX_TIMESTAMP +%Y%m%d%H%M%S`
           echo "GIT_COMMIT_TIMESTAMP=$GIT_COMMIT_TIMESTAMP" >> $GITHUB_ENV
 
       - name: set version env
