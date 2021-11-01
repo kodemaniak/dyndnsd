@@ -69,9 +69,14 @@ jobs:
           export GIT_SHORT_COMMIT_ID=`git rev-parse --short HEAD`
           echo "GIT_SHORT_COMMIT_ID=$GIT_SHORT_COMMIT_ID" >> $GITHUB_ENV
 
+      - name: set commit timestamp env
+        run: |
+          export GIT_COMMIT_TIMESTAMP=`git show --format=%ct HEAD -s`
+          echo "GIT_COMMIT_TIMESTAMP=$GIT_COMMIT_TIMESTAMP" >> $GITHUB_ENV
+
       - name: set version env
         run: |
-          echo "RELEASE_VERSION=$CARGO_VERSION-$GIT_SHORT_COMMIT_ID" >> $GITHUB_ENV
+          echo "RELEASE_VERSION=$CARGO_VERSION-$GIT_COMMIT_TIMESTAMP-$GIT_SHORT_COMMIT_ID" >> $GITHUB_ENV
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
