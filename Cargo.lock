@@ -528,6 +528,7 @@ dependencies = [
  "env_logger",
  "envconfig",
  "futures",
+ "log",
  "mockall",
  "mockall_double",
  "serde",

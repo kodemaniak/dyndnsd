@@ -1,3 +1,4 @@
+use log::error;
 use serde::{Deserialize, Serialize};
 use std::net::Ipv4Addr;
 use surf::{Body, StatusCode};
@@ -89,7 +90,10 @@ impl HetznerDnsClient {
                 Ok(maybe_zone)
             }
             StatusCode::Unauthorized => Err(HetznerDnsClientError::InvalidApiToken),
-            _ => Err(HetznerDnsClientError::FailedToResolveZone),
+            _ => {
+                error!("Failed to resolve zone for {}.", domain);
+                Err(HetznerDnsClientError::FailedToResolveZone)
+            }
         }
     }
 
@@ -113,7 +117,10 @@ impl HetznerDnsClient {
                 }
             }
             StatusCode::Unauthorized => return Err(HetznerDnsClientError::InvalidApiToken),
-            _ => return Err(HetznerDnsClientError::FailedToResolveRecord),
+            _ => {
+                error!("Failed to resolve records for zone id {}.", zone_id);
+                return Err(HetznerDnsClientError::FailedToResolveRecord);
+            }
         }
 
         Ok(None)
@@ -149,7 +156,10 @@ impl HetznerDnsClient {
                 Ok(response.record)
             }
             StatusCode::Unauthorized => Err(HetznerDnsClientError::InvalidApiToken),
-            _ => Err(HetznerDnsClientError::FaliedToUpdateIp),
+            _ => {
+                error!("Failed to update IP for record id {}.", record_id);
+                Err(HetznerDnsClientError::FaliedToUpdateIp)
+            }
         }
     }
 }

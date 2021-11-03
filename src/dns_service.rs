@@ -30,12 +30,13 @@ pub trait DnsService {
 pub enum DnsServiceError {
     UnknownZone,
     UnknownRecord,
+    ClientError,
     UnknownError,
 }
 
 impl From<HetznerDnsClientError> for DnsServiceError {
     fn from(_: HetznerDnsClientError) -> Self {
-        DnsServiceError::UnknownError
+        DnsServiceError::ClientError
     }
 }
 

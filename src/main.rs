@@ -11,6 +11,8 @@ use tokio::sync::mpsc::channel;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), DynDnsServiceError> {
+    env_logger::init();
+
     let config = CliConfig::init_from_env().unwrap();
 
     let mut scheduler = Scheduler::new();
