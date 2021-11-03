@@ -159,13 +159,15 @@ mod tests {
 
         let kernel = DynDnsService::new("example.com", "test", dns_svc_mock, netlink_svc_mock);
         assert_eq!(
-            Err(DynDnsServiceError::UnknownError),
+            Err(DynDnsServiceError::DnsServiceError(
+                DnsServiceError::UnknownError
+            )),
             kernel.update_dns_if_required().await
         );
     }
 
     #[tokio::test]
-    async fn error_on_initialize_during_rtnetlink_lookup() {
+    async fn error_on_initialize_during_public_ip_lookup() {
         let local_ip = Ipv4Addr::new(127, 0, 0, 2);
 
         let mut dns_svc_mock = Box::new(MockDnsService::new());
@@ -192,7 +194,9 @@ mod tests {
         let kernel =
             DynDnsService::new("example.com", "test", dns_svc_mock, public_ip_service_mock);
         assert_eq!(
-            Err(DynDnsServiceError::UnknownError),
+            Err(DynDnsServiceError::PublicIpServiceError(
+                PublicIpServiceError::InternalError
+            )),
             kernel.update_dns_if_required().await
         );
     }
@@ -226,7 +230,9 @@ mod tests {
 
         let kernel = DynDnsService::new("example.com", "test", dns_svc_mock, netlink_svc_mock);
         assert_eq!(
-            Err(DynDnsServiceError::UnknownError),
+            Err(DynDnsServiceError::DnsServiceError(
+                DnsServiceError::UnknownError
+            )),
             kernel.update_dns_if_required().await
         );
     }
