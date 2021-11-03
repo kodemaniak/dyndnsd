@@ -54,10 +54,10 @@ impl UbusJsonRpcPublicIpService {
                 let response_body: Value = response.body_json().await?;
                 let token = response_body["result"][1]["ubus_rpc_session"]
                     .as_str()
-                    .ok_or(PublicIpServiceError::UnknownError)?;
+                    .ok_or(PublicIpServiceError::InvalidCredentials)?;
                 Ok(Token(String::from(token)))
             }
-            _ => Err(PublicIpServiceError::UnknownError),
+            _ => Err(PublicIpServiceError::InvalidCredentials),
         }
     }
 }
@@ -85,18 +85,18 @@ impl PublicIpService for UbusJsonRpcPublicIpService {
                 let response_body: Value = response.body_json().await?;
                 let ip_str = response_body["result"][1]["ipv4-address"][0]["address"]
                     .as_str()
-                    .ok_or(PublicIpServiceError::UnknownError)?;
-                let ip =
-                    Ipv4Addr::from_str(ip_str).map_err(|_| PublicIpServiceError::UnknownError)?;
+                    .ok_or(PublicIpServiceError::InvalidIpResponse)?;
+                let ip = Ipv4Addr::from_str(ip_str)
+                    .map_err(|_| PublicIpServiceError::InvalidIpResponse)?;
                 return Ok(ip);
             }
-            _ => return Err(PublicIpServiceError::UnknownError),
+            _ => return Err(PublicIpServiceError::InvalidIpResponse),
         }
     }
 }
 
 impl From<surf::Error> for PublicIpServiceError {
     fn from(_: surf::Error) -> Self {
-        PublicIpServiceError::UnknownError
+        PublicIpServiceError::InternalError
     }
 }

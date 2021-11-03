@@ -1,6 +1,8 @@
 use clokwerk::{Scheduler, TimeUnits};
 use dyndnsd::{
-    config::CliConfig, dns_service::HetznerDnsService, dyndns_service::DynDnsService,
+    config::CliConfig,
+    dns_service::HetznerDnsService,
+    dyndns_service::{DynDnsService, DynDnsServiceError},
     ubus_jsonrpc_public_ip_service::UbusJsonRpcPublicIpService,
 };
 use envconfig::Envconfig;
@@ -8,7 +10,7 @@ use std::time::Duration;
 use tokio::sync::mpsc::channel;
 
 #[tokio::main(flavor = "current_thread")]
-async fn main() -> Result<(), ()> {
+async fn main() -> Result<(), DynDnsServiceError> {
     let config = CliConfig::init_from_env().unwrap();
 
     let mut scheduler = Scheduler::new();
@@ -35,8 +37,8 @@ async fn main() -> Result<(), ()> {
     tx.clone().send(()).await.unwrap();
 
     while rx.recv().await.is_some() {
-        dyndns.update_dns_if_required().await.map_err(|_| ())?;
+        dyndns.update_dns_if_required().await?;
     }
 
-    Err(())
+    Ok(())
 }

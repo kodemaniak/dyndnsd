@@ -44,17 +44,19 @@ impl DynDnsService {
 #[derive(Debug, PartialEq)]
 pub enum DynDnsServiceError {
     UnknownError,
+    PublicIpServiceError(PublicIpServiceError),
+    DnsServiceError(DnsServiceError),
 }
 
 impl From<DnsServiceError> for DynDnsServiceError {
-    fn from(_: DnsServiceError) -> Self {
-        DynDnsServiceError::UnknownError
+    fn from(e: DnsServiceError) -> Self {
+        DynDnsServiceError::DnsServiceError(e)
     }
 }
 
 impl From<PublicIpServiceError> for DynDnsServiceError {
-    fn from(_: PublicIpServiceError) -> Self {
-        DynDnsServiceError::UnknownError
+    fn from(e: PublicIpServiceError) -> Self {
+        DynDnsServiceError::PublicIpServiceError(e)
     }
 }
 
@@ -181,13 +183,14 @@ mod tests {
             )
             .never();
 
-        let mut netlink_svc_mock = Box::new(MockPublicIpService::new());
-        netlink_svc_mock
+        let mut public_ip_service_mock = Box::new(MockPublicIpService::new());
+        public_ip_service_mock
             .expect_get_ip()
             .times(1)
-            .returning(move || Err(PublicIpServiceError::UnknownError));
+            .returning(move || Err(PublicIpServiceError::InternalError));
 
-        let kernel = DynDnsService::new("example.com", "test", dns_svc_mock, netlink_svc_mock);
+        let kernel =
+            DynDnsService::new("example.com", "test", dns_svc_mock, public_ip_service_mock);
         assert_eq!(
             Err(DynDnsServiceError::UnknownError),
             kernel.update_dns_if_required().await

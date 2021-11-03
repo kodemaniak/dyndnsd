@@ -10,6 +10,9 @@ pub trait PublicIpService {
     async fn get_ip(&self) -> Result<Ipv4Addr, PublicIpServiceError>;
 }
 
+#[derive(Debug, PartialEq)]
 pub enum PublicIpServiceError {
-    UnknownError,
+    InternalError,
+    InvalidCredentials,
+    InvalidIpResponse,
 }
