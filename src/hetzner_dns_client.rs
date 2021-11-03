@@ -89,7 +89,7 @@ impl HetznerDnsClient {
                 Ok(maybe_zone)
             }
             StatusCode::Unauthorized => Err(HetznerDnsClientError::InvalidApiToken),
-            _ => Err(HetznerDnsClientError::UnknownError),
+            _ => Err(HetznerDnsClientError::FailedToResolveZone),
         }
     }
 
@@ -113,7 +113,7 @@ impl HetznerDnsClient {
                 }
             }
             StatusCode::Unauthorized => return Err(HetznerDnsClientError::InvalidApiToken),
-            _ => return Err(HetznerDnsClientError::UnknownError),
+            _ => return Err(HetznerDnsClientError::FailedToResolveRecord),
         }
 
         Ok(None)
@@ -149,14 +149,14 @@ impl HetznerDnsClient {
                 Ok(response.record)
             }
             StatusCode::Unauthorized => Err(HetznerDnsClientError::InvalidApiToken),
-            _ => Err(HetznerDnsClientError::UnknownError),
+            _ => Err(HetznerDnsClientError::FaliedToUpdateIp),
         }
     }
 }
 
 impl From<surf::Error> for HetznerDnsClientError {
     fn from(_: surf::Error) -> Self {
-        HetznerDnsClientError::UnknownError
+        HetznerDnsClientError::InternalError
     }
 }
 
@@ -164,6 +164,9 @@ impl From<surf::Error> for HetznerDnsClientError {
 pub enum HetznerDnsClientError {
     AmbiguousZones,
     InvalidApiToken,
-    UnknownError,
+    FailedToResolveZone,
     UnknownZone,
+    FaliedToUpdateIp,
+    FailedToResolveRecord,
+    InternalError,
 }
