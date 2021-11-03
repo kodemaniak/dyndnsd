@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use log::debug;
 use mockall_double::double;
 use std::net::Ipv4Addr;
 
@@ -62,6 +63,10 @@ impl DnsService for HetznerDnsService {
         subdomain: &str,
         domain: &str,
     ) -> Result<Option<Ipv4Addr>, DnsServiceError> {
+        debug!(
+            "Resolve ip for domain {} and subdomain {}.",
+            domain, subdomain
+        );
         let zone = self.client.find_zone(domain).await?;
 
         if let Some(zone) = zone {
@@ -85,6 +90,10 @@ impl DnsService for HetznerDnsService {
         domain: &str,
         ip: Ipv4Addr,
     ) -> Result<(), DnsServiceError> {
+        debug!(
+            "Update dns for domain {} and subdomain {} with IP {}.",
+            domain, subdomain, ip
+        );
         let zone = self.client.find_zone(domain).await?;
 
         if let Some(zone) = zone {
