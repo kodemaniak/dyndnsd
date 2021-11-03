@@ -35,6 +35,11 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             # Define the environment variable
+            - name: RUST_LOG
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.environmentVars }}
+                  key: RUST_LOG
             - name: DYNDNSD_POLL_INTERVAL
               valueFrom:
                 configMapKeyRef:
