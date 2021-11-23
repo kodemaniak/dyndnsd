@@ -1,4 +1,7 @@
-on: [push, pull_request]
+on:
+  push:
+    tags:
+      - v*
 
 name: Build
 
@@ -101,5 +104,5 @@ jobs:
         uses: docker/build-push-action@5e11b373bfed0d8024ef33d1586c675819690e95
         with:
           context: .
-          push: false
+          push: true
           tags: ghcr.io/kodemaniak/dyndnsd:${{ env.RELEASE_VERSION }}
