@@ -11,16 +11,16 @@ jobs:
     needs: check
 
     steps:
-      - name: Checkout repository
+      - name: checkout repository
         uses: actions/checkout@v2
 
-      - name: Download dasel
+      - name: download dasel
         run: |
           curl -sL https://github.com/TomWright/dasel/releases/download/v1.21.2/dasel_linux_amd64 --output dasel && \
           chmod +x dasel && \
           ./dasel --version
 
-      - name: set version env
+      - name: verify version
         run: |
           export CARGO_VERSION=`./dasel select -f Cargo.toml -s '.package.version'`
           export TAG_VERSION=${GITHUB_REF_NAME:1} # remove leading 'v'
@@ -64,17 +64,17 @@ jobs:
       packages: write
 
     steps:
-      - name: Checkout repository
+      - name: checkout repository
         uses: actions/checkout@v2
 
-      - name: Log in to the Container registry
+      - name: log in to the container registry
         uses: docker/login-action@7f47463f5646678eb7ccf8f0f2e2d0896916a10a
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download dasel
+      - name: download dasel
         run: |
           curl -sL https://github.com/TomWright/dasel/releases/download/v1.21.2/dasel_linux_amd64 --output dasel && \
           chmod +x dasel && \
@@ -100,7 +100,7 @@ jobs:
         run: |
           echo "RELEASE_VERSION=$CARGO_VERSION-$GIT_COMMIT_TIMESTAMP-$GIT_SHORT_COMMIT_ID" >> $GITHUB_ENV
 
-      - name: Build and push Docker image
+      - name: build and push Docker image
         uses: docker/build-push-action@5e11b373bfed0d8024ef33d1586c675819690e95
         with:
           context: .

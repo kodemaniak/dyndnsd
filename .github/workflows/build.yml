@@ -32,7 +32,7 @@ jobs:
         with:
           command: test
 
-  build-and-push-image:
+  build-image:
     runs-on: ubuntu-20.04
     needs: check
     permissions:
@@ -40,45 +40,11 @@ jobs:
       packages: write
 
     steps:
-      - name: Checkout repository
+      - name: checkout repository
         uses: actions/checkout@v2
 
-      - name: Log in to the Container registry
-        uses: docker/login-action@7f47463f5646678eb7ccf8f0f2e2d0896916a10a
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Download dasel
-        run: |
-          curl -sL https://github.com/TomWright/dasel/releases/download/v1.21.2/dasel_linux_amd64 --output dasel && \
-          chmod +x dasel && \
-          ./dasel --version
-
-      - name: set version env
-        run: |
-          export CARGO_VERSION=`./dasel select -f Cargo.toml -s '.package.version'`
-          echo "CARGO_VERSION=$CARGO_VERSION" >> $GITHUB_ENV
-
-      - name: set commit short hash env
-        run: |
-          export GIT_SHORT_COMMIT_ID=`git rev-parse --short HEAD`
-          echo "GIT_SHORT_COMMIT_ID=$GIT_SHORT_COMMIT_ID" >> $GITHUB_ENV
-
-      - name: set commit timestamp env
-        run: |
-          export GIT_COMMIT_UNIX_TIMESTAMP=`git show --format=%ct HEAD -s`
-          export GIT_COMMIT_TIMESTAMP=`date -u -d @$GIT_COMMIT_UNIX_TIMESTAMP +%Y%m%d%H%M%S`
-          echo "GIT_COMMIT_TIMESTAMP=$GIT_COMMIT_TIMESTAMP" >> $GITHUB_ENV
-
-      - name: set version env
-        run: |
-          echo "RELEASE_VERSION=$CARGO_VERSION-$GIT_COMMIT_TIMESTAMP-$GIT_SHORT_COMMIT_ID" >> $GITHUB_ENV
-
-      - name: Build and push Docker image
+      - name: build image
         uses: docker/build-push-action@5e11b373bfed0d8024ef33d1586c675819690e95
         with:
           context: .
           push: false
-          tags: ghcr.io/kodemaniak/dyndnsd:${{ env.RELEASE_VERSION }}
