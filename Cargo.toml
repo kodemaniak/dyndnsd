@@ -20,5 +20,5 @@ openssl-probe = "0.1.5"
 
 [dev-dependencies]
 mockall = "0.11.0"
-wiremock = "0.5.8"
+wiremock = "0.5.10"
 
