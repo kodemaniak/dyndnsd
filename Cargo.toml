@@ -16,7 +16,7 @@ mockall_double = "0.2.1"
 envconfig = "0.10.0"
 env_logger = "0.9.0"
 log = "0.4.14"
-openssl-probe = "0.1.4"
+openssl-probe = "0.1.5"
 
 [dev-dependencies]
 mockall = "0.11.0"
