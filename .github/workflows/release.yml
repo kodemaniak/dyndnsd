@@ -10,8 +10,6 @@ name: Release
 jobs:
   verify-version:
     runs-on: ubuntu-20.04
-    needs: check
-
     steps:
       - name: checkout repository
         uses: actions/checkout@v2
