@@ -1,6 +1,6 @@
 [package]
 name = "dyndnsd"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Carsten Saathoff <carsten@kodemaniak.de>"]
 edition = "2018"
 
