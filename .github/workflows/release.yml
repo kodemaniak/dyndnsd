@@ -1,9 +1,9 @@
+name: Release
+
 on:
   push:
     tags:
       - '*'
-
-name: Release
 
 jobs:
   verify-version:
