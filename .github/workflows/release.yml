@@ -22,6 +22,8 @@ jobs:
         run: |
           export CARGO_VERSION=`./dasel select -f Cargo.toml -s '.package.version'`
           export TAG_VERSION=$GITHUB_REF_NAME # remove leading 'v'
+          echo "Cargo version: $CARGO_VERSION"
+          echo "Tag version: $TAG_VERSION"
           test $CARGO_VERSION = $TAG_VARSION
 
   check:
