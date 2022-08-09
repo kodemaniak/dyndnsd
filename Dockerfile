@@ -4,7 +4,7 @@ ADD --chown=rust:rust . ./
 
 RUN cargo build --release
 
-FROM alpine:3.16.0
+FROM alpine:3.16.2
 
 COPY --from=builder /home/rust/src/target/x86_64-unknown-linux-musl/release/dyndnsd /
 
