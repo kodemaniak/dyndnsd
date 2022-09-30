@@ -27,7 +27,7 @@ pub trait DnsService {
     ) -> Result<(), DnsServiceError>;
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum DnsServiceError {
     UnknownZone,
     UnknownRecord,
