@@ -32,7 +32,7 @@ pub struct UpdateRecordRequest {
     pub zone_id: String,
 }
 
-#[derive(Clone, Deserialize, Serialize, Debug, PartialEq)]
+#[derive(Clone, Deserialize, Serialize, Debug, PartialEq, Eq)]
 pub struct Zone {
     pub id: String,
     pub name: String,
