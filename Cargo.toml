@@ -19,6 +19,6 @@ log = "0.4.17"
 openssl-probe = "0.1.5"
 
 [dev-dependencies]
-mockall = "0.11.1"
+mockall = "0.11.2"
 wiremock = "0.5.14"
 
