@@ -10,6 +10,35 @@ The idea is inspired by [external-dns](https://github.com/kubernetes-sigs/extern
 
 tbd.
 
+# Setting Up OpenWRT.
+
+* Install uhttpd-mod-ubus (https://openwrt.org/docs/techref/ubus#access_to_ubus_over_http)
+* create a user `dyndnsd` (https://openwrt.org/docs/guide-user/additional-software/create-new-users)
+ * `useradd -d /home/dyndnsd -m -g 100 -r dyndnsd`
+ * `passwd dyndnsd` to assign a password to the user
+* Create ACLs for `dyndnsd`. Please replace `wan` below with the appropriate interface of your router that has the public IP of your connection.
+```json
+{
+        "dyndnsd": {
+                "description": "Grant access to network status information",
+                "read": {
+                        "ubus": {
+                                "network.interface.wan": [ "status" ]
+                        }
+                }
+        }
+}
+```
+* Add user to `/etc/config/rpcd`
+```
+config login
+        option username 'dyndnsd'
+        option password '$p$dyndnsd'
+        list read dyndnsd
+        list write dyndnsd
+```
+* Commit this change: `uci commit rpcd`
+
 # Development
 
 tbd.
