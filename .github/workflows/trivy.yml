@@ -33,7 +33,7 @@ jobs:
           load: true
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@d63413b0a4a4482237085319f7f4a1ce99a8f2ac
+        uses: aquasecurity/trivy-action@e602665a11b530ef6d75951b866d4eea32732be9
         with:
           image-ref: 'localbuild/dyndnsd:${{ github.sha }}'
           format: 'sarif'
