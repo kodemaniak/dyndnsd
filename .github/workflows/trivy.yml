@@ -28,17 +28,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Build an image from Dockerfile
-        run: |
-          docker build -t docker.io/my-organization/my-app:${{ github.sha }} .
+      - name: build local container
+        uses: docker/build-push-action@v2
+        with:
+          tags: localbuild/dyndnsd:${{ github.sha }}
+          push: false
+          load: true
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@d63413b0a4a4482237085319f7f4a1ce99a8f2ac
         with:
-          image-ref: 'docker.io/my-organization/my-app:${{ github.sha }}'
-          format: 'template'
-          template: '@/contrib/sarif.tpl'
+          image-ref: 'localbuild/dyndnsd:${{ github.sha }}'
+          format: 'sarif'
           output: 'trivy-results.sarif'
+          vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
       - name: Upload Trivy scan results to GitHub Security tab

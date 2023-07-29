@@ -25,11 +25,11 @@ jobs:
       - name: build local container
         uses: docker/build-push-action@v2
         with:
-          tags: localbuild/testimage:latest
+          tags: localbuild/dyndnsd:${{ github.sha }}
           push: false
           load: true
 
       - name: Scan image
         uses: anchore/scan-action@v3
         with:
-          image: "localbuild/testimage:latest"
+          image: "localbuild/dyndnsd:${{ github.sha }}"
