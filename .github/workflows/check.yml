@@ -1,4 +1,4 @@
-name: Check
+name: check
 
 on:
   push:
@@ -35,23 +35,3 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-
-  build-image:
-    runs-on: ubuntu-20.04
-    needs: check
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2      
-      
-      - name: build image
-        uses: docker/build-push-action@4fad532b9fdbfb80f436784834374a1c11834153
-        with:
-          context: .
-          push: false
