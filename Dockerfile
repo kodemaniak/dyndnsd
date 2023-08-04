@@ -1,12 +1,14 @@
-FROM ekidd/rust-musl-builder:latest as builder
+FROM rust:1.71.1 as builder
 
-ADD --chown=rust:rust . ./
+ADD . .
+
+WORKDIR /
 
 RUN cargo build --release
 
 FROM alpine:3.18.2
 
-COPY --from=builder /home/rust/src/target/x86_64-unknown-linux-musl/release/dyndnsd /
+COPY --from=builder /target/release/dyndnsd /
 
 WORKDIR /
 
