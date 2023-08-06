@@ -11,7 +11,6 @@ use tokio::sync::mpsc::channel;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), DynDnsServiceError> {
-    openssl_probe::init_ssl_cert_env_vars();
     env_logger::init();
 
     let config = CliConfig::init_from_env().unwrap();

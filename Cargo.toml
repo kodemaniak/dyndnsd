@@ -1,23 +1,23 @@
 [package]
 name = "dyndnsd"
-version = "0.2.3"
+version = "0.3.0"
 authors = ["Carsten Saathoff <carsten@kodemaniak.de>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
-futures = "0.3.28"
+futures = "0.3.24"
 async-trait = "0.1.72"
-tokio = { version = "1.29.1", features = ["rt", "macros"] }
+tokio = { version = "1.20.4", features = ["rt", "macros"] }
 clokwerk = "0.4.0"
-serde = "1.0.181"
-serde_json = "1.0.104"
-surf = { version = "2.3.2", features = ["h1-client-rustls"] }
+serde = { version = "1.0.178", features = ["derive"] }
+serde_json = "1.0.86"
 mockall_double = "0.3.0"
 envconfig = "0.10.0"
 env_logger = "0.10.0"
 log = "0.4.19"
-openssl-probe = "0.1.5"
+reqwest = { version = "0.11.18", features = ["json"]}
+thiserror = "1.0.44"
 
 [dev-dependencies]
-mockall = "0.11.4"
-wiremock = "0.5.19"
+mockall = "0.11.2"
+wiremock = "0.5.14"

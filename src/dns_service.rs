@@ -2,6 +2,7 @@ use async_trait::async_trait;
 use log::debug;
 use mockall_double::double;
 use std::net::Ipv4Addr;
+use thiserror::Error;
 
 #[cfg(test)]
 use mockall::automock;
@@ -27,11 +28,15 @@ pub trait DnsService {
     ) -> Result<(), DnsServiceError>;
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Error)]
 pub enum DnsServiceError {
+    #[error("unknown zone")]
     UnknownZone,
+    #[error("unknown record")]
     UnknownRecord,
+    #[error("client error")]
     ClientError,
+    #[error("unknown error")]
     UnknownError,
 }
 
@@ -183,7 +188,7 @@ mod tests {
 
         let svc = HetznerDnsService::from_client(client);
         let ip = svc.resolve_ip(SUBDOMAIN, ZONE).await;
-        assert_eq!(ip.err().unwrap(), DnsServiceError::UnknownZone);
+        assert!(matches!(ip.err().unwrap(), DnsServiceError::UnknownZone));
     }
 
     #[tokio::test]
