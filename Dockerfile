@@ -6,7 +6,7 @@ WORKDIR /
 
 RUN cargo build --release
 
-FROM gcr.io/distroless/base:nonroot
+FROM gcr.io/distroless/cc
 
 COPY --from=builder /target/release/dyndnsd /
 
