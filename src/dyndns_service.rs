@@ -1,3 +1,5 @@
+use thiserror::Error;
+
 use crate::{
     dns_service::{DnsService, DnsServiceError},
     public_ip_service::{PublicIpService, PublicIpServiceError},
@@ -41,23 +43,20 @@ impl DynDnsService {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Error)]
 pub enum DynDnsServiceError {
+    #[error("unknown error")]
     UnknownError,
-    PublicIpServiceError(PublicIpServiceError),
-    DnsServiceError(DnsServiceError),
-}
-
-impl From<DnsServiceError> for DynDnsServiceError {
-    fn from(e: DnsServiceError) -> Self {
-        DynDnsServiceError::DnsServiceError(e)
-    }
-}
-
-impl From<PublicIpServiceError> for DynDnsServiceError {
-    fn from(e: PublicIpServiceError) -> Self {
-        DynDnsServiceError::PublicIpServiceError(e)
-    }
+    #[error("public ip service error")]
+    PublicIpServiceError {
+        #[from]
+        source: PublicIpServiceError,
+    },
+    #[error("dns service error")]
+    DnsServiceError {
+        #[from]
+        source: DnsServiceError,
+    },
 }
 
 #[cfg(test)]
@@ -158,12 +157,12 @@ mod tests {
         netlink_svc_mock.expect_get_ip().never();
 
         let kernel = DynDnsService::new("example.com", "test", dns_svc_mock, netlink_svc_mock);
-        assert_eq!(
-            Err(DynDnsServiceError::DnsServiceError(
-                DnsServiceError::UnknownError
-            )),
-            kernel.update_dns_if_required().await
-        );
+        assert!(matches!(
+            kernel.update_dns_if_required().await,
+            Err(DynDnsServiceError::DnsServiceError {
+                source: DnsServiceError::UnknownError
+            })
+        ));
     }
 
     #[tokio::test]
@@ -193,12 +192,12 @@ mod tests {
 
         let kernel =
             DynDnsService::new("example.com", "test", dns_svc_mock, public_ip_service_mock);
-        assert_eq!(
-            Err(DynDnsServiceError::PublicIpServiceError(
-                PublicIpServiceError::InternalError
-            )),
-            kernel.update_dns_if_required().await
-        );
+        assert!(matches!(
+            kernel.update_dns_if_required().await,
+            Err(DynDnsServiceError::PublicIpServiceError {
+                source: PublicIpServiceError::InternalError
+            })
+        ));
     }
 
     #[tokio::test]
@@ -229,11 +228,11 @@ mod tests {
             .returning(move || Ok(local_ip));
 
         let kernel = DynDnsService::new("example.com", "test", dns_svc_mock, netlink_svc_mock);
-        assert_eq!(
-            Err(DynDnsServiceError::DnsServiceError(
-                DnsServiceError::UnknownError
-            )),
-            kernel.update_dns_if_required().await
-        );
+        assert!(matches!(
+            kernel.update_dns_if_required().await,
+            Err(DynDnsServiceError::DnsServiceError {
+                source: DnsServiceError::UnknownError
+            })
+        ));
     }
 }

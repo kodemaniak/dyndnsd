@@ -1,7 +1,8 @@
 use log::error;
+use reqwest::{Client, StatusCode};
 use serde::{Deserialize, Serialize};
 use std::net::Ipv4Addr;
-use surf::{Body, StatusCode};
+use thiserror::Error;
 
 #[cfg(test)]
 use mockall::automock;
@@ -50,7 +51,7 @@ pub struct Record {
 pub struct HetznerDnsClient {
     api_url: String,
     api_token: String,
-    client: surf::Client,
+    client: Client,
 }
 
 #[cfg_attr(test, automock)]
@@ -60,7 +61,7 @@ impl HetznerDnsClient {
     }
 
     pub fn new_with_url(api_token: &str, api_url: &str) -> Self {
-        let client = surf::Client::new();
+        let client = Client::new();
         Self {
             api_url: String::from(api_url),
             api_token: String::from(api_token),
@@ -68,31 +69,30 @@ impl HetznerDnsClient {
         }
     }
 
-    pub async fn find_zone(&self, domain: &str) -> Result<Option<Zone>, HetznerDnsClientError> {
-        let request = self
+    pub async fn find_zone(&self, zone: &str) -> Result<Option<Zone>, HetznerDnsClientError> {
+        let response = self
             .client
-            .get(format!("{}/zones?name={}", self.api_url, domain))
+            .get(format!("{}/zones?name={}", self.api_url, zone))
             .header("Auth-API-Token", &self.api_token)
-            .build();
-        let response = self.client.send(request).await;
-        let mut response = response?;
+            .send()
+            .await?;
 
         match response.status() {
-            StatusCode::Ok => {
-                let response: GetZonesResponse = response.body_json().await?;
+            StatusCode::OK => {
+                let response: GetZonesResponse = response.json().await?;
 
-                if response.zones.len() > 1 {
-                    return Err(HetznerDnsClientError::AmbiguousZones);
-                }
-
+                // THere can only be one zone with a given name, therefore we just take the first
+                // result if present
                 let maybe_zone = response.zones.into_iter().next();
 
                 Ok(maybe_zone)
             }
-            StatusCode::Unauthorized => Err(HetznerDnsClientError::InvalidApiToken),
+            StatusCode::UNAUTHORIZED => Err(HetznerDnsClientError::InvalidApiToken),
             _ => {
-                error!("Failed to resolve zone for {}.", domain);
-                Err(HetznerDnsClientError::FailedToResolveZone)
+                error!("Failed to resolve zone for {}.", zone);
+                Err(HetznerDnsClientError::FailedToResolveZone {
+                    zone: zone.to_string(),
+                })
             }
         }
     }
@@ -102,24 +102,26 @@ impl HetznerDnsClient {
         zone_id: &str,
         subdomain: &str,
     ) -> Result<Option<Record>, HetznerDnsClientError> {
-        let request = self
+        let response = self
             .client
             .get(format!("{}/records?zone_id={}", self.api_url, zone_id))
             .header("Auth-API-Token", &self.api_token)
-            .build();
-        let mut response = self.client.send(request).await?;
+            .send()
+            .await?;
 
         match response.status() {
-            StatusCode::Ok => {
-                let response: GetRecordsResponse = response.body_json().await?;
+            StatusCode::OK => {
+                let response: GetRecordsResponse = response.json().await?;
                 if let Some(record) = response.records.into_iter().find(|r| r.name == subdomain) {
                     return Ok(Some(record));
                 }
             }
-            StatusCode::Unauthorized => return Err(HetznerDnsClientError::InvalidApiToken),
+            StatusCode::UNAUTHORIZED => return Err(HetznerDnsClientError::InvalidApiToken),
             _ => {
                 error!("Failed to resolve records for zone id {}.", zone_id);
-                return Err(HetznerDnsClientError::FailedToResolveRecord);
+                return Err(HetznerDnsClientError::FailedToResolveRecord {
+                    record: zone_id.to_string(),
+                });
             }
         }
 
@@ -140,43 +142,46 @@ impl HetznerDnsClient {
             zone_id: zone_id.into(),
             value: ip.to_string(),
         };
-        let request = self
+        let response = self
             .client
             .put(format!("{}/records/{}", self.api_url, record_id))
-            .body(Body::from_json(&request_body)?)
+            .json(&request_body)
             .header("Auth-API-Token", &self.api_token)
-            .build();
-        let response = self.client.send(request).await;
-        let mut response = response?;
+            .send()
+            .await?;
 
         match response.status() {
-            StatusCode::Ok => {
-                let response: UpdateRecordResponse = response.body_json().await?;
+            StatusCode::OK => {
+                let response: UpdateRecordResponse = response.json().await?;
 
                 Ok(response.record)
             }
-            StatusCode::Unauthorized => Err(HetznerDnsClientError::InvalidApiToken),
+            StatusCode::UNAUTHORIZED => Err(HetznerDnsClientError::InvalidApiToken),
             _ => {
                 error!("Failed to update IP for record id {}.", record_id);
-                Err(HetznerDnsClientError::FaliedToUpdateIp)
+                Err(HetznerDnsClientError::FaliedToUpdateIp {
+                    record: record_id.to_string(),
+                })
             }
         }
     }
 }
 
-impl From<surf::Error> for HetznerDnsClientError {
-    fn from(_: surf::Error) -> Self {
-        HetznerDnsClientError::InternalError
-    }
-}
-
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum HetznerDnsClientError {
-    AmbiguousZones,
+    #[error("We could not authenticate against the API.")]
     InvalidApiToken,
-    FailedToResolveZone,
-    UnknownZone,
-    FaliedToUpdateIp,
-    FailedToResolveRecord,
+    #[error("Failed to retrieve zone: {zone}")]
+    FailedToResolveZone { zone: String },
+    #[error("Failed to update ip: {record}")]
+    FaliedToUpdateIp { record: String },
+    #[error("Failed to retrieve record: {record}")]
+    FailedToResolveRecord { record: String },
+    #[error("request failed")]
+    RequestFailed {
+        #[from]
+        source: reqwest::Error,
+    },
+    #[error("internal error")]
     InternalError,
 }

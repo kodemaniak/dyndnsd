@@ -1,11 +1,11 @@
 use async_trait::async_trait;
+use reqwest::Client;
+use reqwest::StatusCode;
 use serde_json::Value;
 use std::net::Ipv4Addr;
 use std::str::FromStr;
 
 use serde_json::json;
-use surf::Client;
-use surf::StatusCode;
 
 use crate::public_ip_service::PublicIpService;
 use crate::public_ip_service::PublicIpServiceError;
@@ -22,7 +22,7 @@ pub struct UbusJsonRpcPublicIpService {
 
 impl UbusJsonRpcPublicIpService {
     pub fn new(ubus_url: &str, ubus_user: &str, ubus_secret: &str) -> Self {
-        let client = surf::Client::new();
+        let client = Client::new();
         Self {
             ubus_url: String::from(ubus_url),
             ubus_user: String::from(ubus_user),
@@ -46,12 +46,16 @@ impl UbusJsonRpcPublicIpService {
                 }
             ]
         });
-        let request = self.client.post(&self.ubus_url).body(request_body).build();
-        let mut response = self.client.send(request).await?;
+        let response = self
+            .client
+            .post(&self.ubus_url)
+            .json(&request_body)
+            .send()
+            .await?;
 
         match response.status() {
-            StatusCode::Ok => {
-                let response_body: Value = response.body_json().await?;
+            StatusCode::OK => {
+                let response_body: Value = response.json().await?;
                 let token = response_body["result"][1]["ubus_rpc_session"]
                     .as_str()
                     .ok_or(PublicIpServiceError::InvalidCredentials)?;
@@ -77,12 +81,16 @@ impl PublicIpService for UbusJsonRpcPublicIpService {
                 {}
             ]
         });
-        let request = self.client.post(&self.ubus_url).body(request_body).build();
-        let mut response = self.client.send(request).await?;
+        let response = self
+            .client
+            .post(&self.ubus_url)
+            .json(&request_body)
+            .send()
+            .await?;
 
         match response.status() {
-            StatusCode::Ok => {
-                let response_body: Value = response.body_json().await?;
+            StatusCode::OK => {
+                let response_body: Value = response.json().await?;
                 let ip_str = response_body["result"][1]["ipv4-address"][0]["address"]
                     .as_str()
                     .ok_or(PublicIpServiceError::InvalidIpResponse)?;
@@ -92,11 +100,5 @@ impl PublicIpService for UbusJsonRpcPublicIpService {
             }
             _ => return Err(PublicIpServiceError::InvalidIpResponse),
         }
-    }
-}
-
-impl From<surf::Error> for PublicIpServiceError {
-    fn from(_: surf::Error) -> Self {
-        PublicIpServiceError::InternalError
     }
 }
