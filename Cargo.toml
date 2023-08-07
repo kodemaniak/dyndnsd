@@ -20,4 +20,4 @@ thiserror = "1.0.44"
 
 [dev-dependencies]
 mockall = "0.11.4"
-wiremock = "0.5.14"
+wiremock = "0.5.19"
