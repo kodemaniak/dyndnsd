@@ -9,7 +9,7 @@ use envconfig::Envconfig;
 use std::time::Duration;
 use tokio::sync::mpsc::channel;
 
-#[tokio::main(flavor = "current_thread")]
+#[tokio::main]
 async fn main() -> Result<(), DynDnsServiceError> {
     env_logger::init();
 
