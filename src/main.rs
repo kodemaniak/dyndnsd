@@ -3,7 +3,7 @@ use dyndnsd::{
     config::CliConfig,
     dns_service::HetznerDnsService,
     dyndns_service::{DynDnsService, DynDnsServiceError},
-    ubus_jsonrpc_public_ip_service::UbusJsonRpcPublicIpService,
+    ubus_jsonrpc_public_ip_service::UbusJsonRpcClient,
 };
 use envconfig::Envconfig;
 use std::time::Duration;
@@ -18,14 +18,14 @@ async fn main() -> Result<(), DynDnsServiceError> {
     let mut scheduler = Scheduler::new();
 
     let dns_service = HetznerDnsService::new(&config.api_token);
-    let netlink =
-        UbusJsonRpcPublicIpService::new(&config.ubus_url, &config.ubus_user, &config.ubus_secret);
+    let ubus_service =
+        UbusJsonRpcClient::new(&config.ubus_url, &config.ubus_user, &config.ubus_secret);
 
     let dyndns = DynDnsService::new(
         &config.domain,
         &config.subdomain,
         Box::new(dns_service),
-        Box::new(netlink),
+        Box::new(ubus_service),
     );
 
     let (tx, mut rx) = channel::<()>(1);
