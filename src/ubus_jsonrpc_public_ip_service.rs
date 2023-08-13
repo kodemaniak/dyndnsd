@@ -68,7 +68,7 @@ impl UbusJsonRequestContainer {
             Value::String(NULL_SESSION.to_string()),
             Value::String("session".to_string()),
             Value::String("login".to_string()),
-            vec![login_params.clone()],
+            vec![login_params],
         )
     }
 
@@ -164,9 +164,9 @@ impl UbusJsonRpcClient {
                     .map_err(|_| PublicIpServiceError::InternalError)?;
                 let status = serde_json::from_value(response_body.result[1].clone())
                     .map_err(|_| PublicIpServiceError::InvalidIpResponse)?;
-                return Ok(status);
+                Ok(status)
             }
-            _ => return Err(PublicIpServiceError::InvalidIpResponse),
+            _ => Err(PublicIpServiceError::InvalidIpResponse),
         }
     }
 }
