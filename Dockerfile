@@ -1,4 +1,4 @@
-FROM rust:1.71.1 as builder
+FROM rust:1.82.0 as builder
 
 ADD . .
 
